@@ -44,4 +44,13 @@ class FilteringApplesTest {
     System.out.println(apples);
   }
 
+  /**
+   * 라이브러리 메서드 filter 를 이용하면 filterApples 메서드를 구현할 필요가 없다.
+   * */
+  @Test
+  void filterHeavyApplesWithLibraryTest() {
+    List<Apple> apples = inventory.stream().filter(apple -> apple.getWeight() > 150).toList();
+    assertThat(apples.size()).isEqualTo(1);
+    System.out.println(apples);
+  }
 }
