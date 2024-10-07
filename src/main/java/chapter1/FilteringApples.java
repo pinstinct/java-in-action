@@ -8,6 +8,10 @@ import java.util.List;
 
 public class FilteringApples {
 
+  /**
+   * isGreenApple, isHeavyApple 처럼 한두 번만 사용할 메서드를 정의하는 대신 람다를 사용할 수 있다. 하지만 람다가 몇 줄 이상으로 길어진다면 익명
+   * 람다보다는 코드가 수행하는 일을 잘 설명하는 이름을 가진 메서드를 정의하고 메소드를 참조를 활용하는 것이 바람직하다.
+   */
   public static boolean isGreenApple(Apple apple) {
     return GREEN.value().equals(apple.getColor());
   }

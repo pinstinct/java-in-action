@@ -1,6 +1,7 @@
 package chapter1;
 
 import static chapter1.FilteringApples.filterApples;
+import static constant.Colors.GREEN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import domain.Apple;
@@ -29,5 +30,18 @@ class FilteringApplesTest {
     assertThat(result.size()).isEqualTo(1);
   }
 
+  @Test
+  void filterGreenApplesWithLambdaTest() {
+    List<Apple> apples = filterApples(inventory, apple -> GREEN.value().equals(apple.getColor()));
+    assertThat(apples.size()).isEqualTo(2);
+    System.out.println(apples);
+  }
+
+  @Test
+  void filterHeavyApplesWithLambdaTest() {
+    List<Apple> apples = filterApples(inventory, apple -> apple.getWeight() > 150);
+    assertThat(apples.size()).isEqualTo(1);
+    System.out.println(apples);
+  }
 
 }
