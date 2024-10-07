@@ -1,7 +1,6 @@
 package chapter1;
 
-import static chapter1.FilteringApples.filterGreenApples;
-import static chapter1.FilteringApples.filterHeavyApples;
+import static chapter1.FilteringApples.filterApples;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import domain.Apple;
@@ -18,14 +17,14 @@ class FilteringApplesTest {
 
   @Test
   void filterGreenApplesTest() {
-    List<Apple> result = filterGreenApples(inventory);
+    List<Apple> result = filterApples(inventory, FilteringApples::isGreenApple);
     System.out.println(result);
     assertThat(result.size()).isEqualTo(2);
   }
 
   @Test
   void filterHeavyApplesTest() {
-    List<Apple> result = filterHeavyApples(inventory);
+    List<Apple> result = filterApples(inventory, FilteringApples::isHeavyApple);
     System.out.println(result);
     assertThat(result.size()).isEqualTo(1);
   }
