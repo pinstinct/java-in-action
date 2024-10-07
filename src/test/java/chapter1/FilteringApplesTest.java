@@ -53,4 +53,15 @@ class FilteringApplesTest {
     assertThat(apples.size()).isEqualTo(1);
     System.out.println(apples);
   }
+
+  /**
+   * 위의 filterHeavyApplesWithLibraryTest 테스트를 병렬로 처리
+   * */
+  @Test
+  void filterHeavyApplesWithParallelStream() {
+    List<Apple> apples = inventory.parallelStream().filter(apple -> apple.getWeight() > 150)
+        .toList();
+    assertThat(apples.size()).isEqualTo(1 );
+    System.out.println(apples);
+  }
 }
