@@ -8,6 +8,10 @@ import java.util.List;
 
 public class FilteringApples {
 
+  /**
+   * 두 메서드는 한 줄의 if문 코드만 다르다.
+   * */
+
   public static List<Apple> filterGreenApples(List<Apple> inventory) {
     List<Apple> result = new ArrayList<>();
     for (Apple apple : inventory) {
