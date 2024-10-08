@@ -7,6 +7,7 @@ import static constant.Colors.GREEN;
 import static constant.Colors.RED;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import chapter2.FilteringApples.AppleRedAndHeavyPredicate;
 import domain.Apple;
 import java.util.Arrays;
 import java.util.List;
@@ -38,14 +39,10 @@ class FilteringApplesTest {
   }
 
   @Test
-  @DisplayName("세 번째 시도: 가능한 모든 속성을 필터링")
+  @DisplayName("네 번째 시도: 추상적 조건으로 필터링")
   void test3() {
-    List<Apple> greenApples = filterApples(inventory, GREEN, 0, true);
-    assertThat(greenApples.size()).isEqualTo(2);
-    System.out.println(greenApples);
-
-    List<Apple> heavyApples = filterApples(inventory, null, 150, false);
-    assertThat(heavyApples.size()).isEqualTo(1);
-    System.out.println(heavyApples);
+    List<Apple> apples = filterApples(inventory, new AppleRedAndHeavyPredicate());
+    assertThat(apples).isEmpty();
+    System.out.println(apples);
   }
 }

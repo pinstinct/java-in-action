@@ -1,6 +1,7 @@
 package chapter2;
 
 import static constant.Colors.GREEN;
+import static constant.Colors.RED;
 
 import constant.Colors;
 import domain.Apple;
@@ -29,11 +30,11 @@ public class FilteringApples {
     return result;
   }
 
-  public static List<Apple> filterApples(List<Apple> inventory, Colors color, int weight,
-      boolean flag) {
+  // 동작 파라미터화, 메서드가 다양한 동작(또는 전략)을 받아서 내부적으로 다양한 동작을 수행
+  public static List<Apple> filterApples(List<Apple> inventory, ApplePredicate p) {
     List<Apple> result = new ArrayList<>();
     for (Apple apple : inventory) {
-      if ((flag && apple.getColor().equals(color)) || (!flag && apple.getWeight() > weight)) {
+      if (p.test(apple)) {  // 프레디케이트 객체로 사과 검사 조건을 캡슐화
         result.add(apple);
       }
     }
@@ -63,6 +64,13 @@ public class FilteringApples {
     public boolean test(Apple apple) {
       return GREEN.equals(apple.getColor());
     }
+  }
 
+  static class AppleRedAndHeavyPredicate implements ApplePredicate {
+
+    @Override
+    public boolean test(Apple apple) {
+      return apple.getWeight() > 150 && RED.equals(apple.getColor());
+    }
   }
 }
