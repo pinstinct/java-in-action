@@ -12,8 +12,11 @@ import chapter2.FilteringApples.ApplePredicate;
 import chapter2.FilteringApples.AppleRedAndHeavyPredicate;
 import domain.Apple;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -101,5 +104,24 @@ class FilteringApplesTest {
   void test8() {
     Thread thread = new Thread(() -> System.out.println("Hello world"));
     thread.start();
+  }
+
+  @Test
+  @DisplayName("Callable을 결과로 반환하기")
+  void test9() {
+    ExecutorService executorService = Executors.newCachedThreadPool();
+    Future<String> threadName = executorService.submit(new Callable<String>() {
+      @Override
+      public String call() throws Exception {
+        return Thread.currentThread().getName();
+      }
+    });
+  }
+
+  @Test
+  @DisplayName("Callable을 결과로 반환하기 with 람다")
+  void test10() {
+    ExecutorService executorService = Executors.newCachedThreadPool();
+    Future<String> threadName = executorService.submit(() -> Thread.currentThread().getName());
   }
 }
