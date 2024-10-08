@@ -1,5 +1,6 @@
 package chapter2;
 
+import static chapter2.FilteringApples.filterApples;
 import static chapter2.FilteringApples.filterApplesByColor;
 import static chapter2.FilteringApples.filterGreenApples;
 import static constant.Colors.GREEN;
@@ -34,5 +35,17 @@ class FilteringApplesTest {
     List<Apple> apples = filterApplesByColor(inventory, RED);
     assertThat(apples.size()).isEqualTo(1);
     System.out.println(apples);
+  }
+
+  @Test
+  @DisplayName("세 번째 시도: 가능한 모든 속성을 필터링")
+  void test3() {
+    List<Apple> greenApples = filterApples(inventory, GREEN, 0, true);
+    assertThat(greenApples.size()).isEqualTo(2);
+    System.out.println(greenApples);
+
+    List<Apple> heavyApples = filterApples(inventory, null, 150, false);
+    assertThat(heavyApples.size()).isEqualTo(1);
+    System.out.println(heavyApples);
   }
 }
