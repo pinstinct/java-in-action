@@ -2,6 +2,7 @@ package chapter1;
 
 import static chapter1.FilteringApples.filterApples;
 import static constant.Colors.GREEN;
+import static constant.Colors.RED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import domain.Apple;
@@ -12,9 +13,9 @@ import org.junit.jupiter.api.Test;
 class FilteringApplesTest {
 
   List<Apple> inventory = Arrays.asList(
-      new Apple(80, "green"),
-      new Apple(155, "green"),
-      new Apple(120, "red"));
+      new Apple(80, GREEN),
+      new Apple(155, GREEN),
+      new Apple(120, RED));
 
   @Test
   void filterGreenApplesTest() {
@@ -32,7 +33,7 @@ class FilteringApplesTest {
 
   @Test
   void filterGreenApplesWithLambdaTest() {
-    List<Apple> apples = filterApples(inventory, apple -> GREEN.value().equals(apple.getColor()));
+    List<Apple> apples = filterApples(inventory, apple -> GREEN.equals(apple.getColor()));
     assertThat(apples.size()).isEqualTo(2);
     System.out.println(apples);
   }

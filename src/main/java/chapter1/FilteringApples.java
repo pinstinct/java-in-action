@@ -13,7 +13,7 @@ public class FilteringApples {
    * 람다보다는 코드가 수행하는 일을 잘 설명하는 이름을 가진 메서드를 정의하고 메소드를 참조를 활용하는 것이 바람직하다.
    */
   public static boolean isGreenApple(Apple apple) {
-    return GREEN.value().equals(apple.getColor());
+    return GREEN.equals(apple.getColor());
   }
 
   public static boolean isHeavyApple(Apple apple) {

@@ -1,11 +1,13 @@
 package domain;
 
+import constant.Colors;
+
 public class Apple {
 
   private int weight = 0;
-  private String color = "";
+  private Colors color;
 
-  public Apple(int weight, String color) {
+  public Apple(int weight, Colors color) {
     this.weight = weight;
     this.color = color;
   }
@@ -23,11 +25,11 @@ public class Apple {
     this.weight = weight;
   }
 
-  public String getColor() {
+  public Colors getColor() {
     return color;
   }
 
-  public void setColor(String color) {
+  public void setColor(Colors color) {
     this.color = color;
   }
 }
