@@ -7,6 +7,7 @@ import static constant.Colors.GREEN;
 import static constant.Colors.RED;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import chapter2.FilteringApples.ApplePredicate;
 import chapter2.FilteringApples.AppleRedAndHeavyPredicate;
 import domain.Apple;
 import java.util.Arrays;
@@ -43,6 +44,21 @@ class FilteringApplesTest {
   void test3() {
     List<Apple> apples = filterApples(inventory, new AppleRedAndHeavyPredicate());
     assertThat(apples).isEmpty();
+    System.out.println(apples);
+  }
+
+  @Test
+  @DisplayName("다섯 번째 시도: 익명 클래스 사용")
+  void test4() {
+    // filterApples 메서드의 동작을 직접 파라미터화
+    List<Apple> apples = filterApples(inventory, new ApplePredicate() {
+      @Override
+      public boolean test(Apple apple) {
+        return RED.equals(apple.getColor());
+      }
+    });
+
+    assertThat(apples.size()).isEqualTo(1);
     System.out.println(apples);
   }
 }
