@@ -1,5 +1,6 @@
 package chapter2;
 
+import static chapter2.FilteringApples.filter;
 import static chapter2.FilteringApples.filterApples;
 import static chapter2.FilteringApples.filterApplesByColor;
 import static chapter2.FilteringApples.filterGreenApples;
@@ -68,5 +69,17 @@ class FilteringApplesTest {
     List<Apple> apples = filterApples(inventory, apple -> RED.equals(apple.getColor()));
     assertThat(apples.size()).isEqualTo(1);
     System.out.println(apples);
+  }
+
+  @Test
+  @DisplayName("일곱 번째 시도: 리스트 형식의 추상화")
+  void test6() {
+    List<Apple> redApples = filter(inventory, apple -> RED.equals(apple.getColor()));
+    assertThat(redApples.size()).isEqualTo(1);
+    System.out.println(redApples);
+
+    List<Integer> evenNumbers = filter(Arrays.asList(1, 2, 3, 4, 5), number -> number % 2 == 0);
+    assertThat(evenNumbers.size()).isEqualTo(2);
+    System.out.println(evenNumbers);
   }
 }

@@ -73,4 +73,21 @@ public class FilteringApples {
       return apple.getWeight() > 150 && RED.equals(apple.getColor());
     }
   }
+
+  /* 리스트 형식으로 추상화 */
+  interface Predicate<T> {
+    boolean test(T t);
+  }
+
+  /* 이제 바나나, 오렌지, 정수, 문자열 등의 리스트에 필터 메서드를 사용할 수 있다. */
+  static <T> List<T> filter(List<T> list, Predicate<T> p) {
+    List<T> result = new ArrayList<>();
+    for (T e : list) {
+      if (p.test(e)) {
+        result.add(e);
+      }
+    }
+    return result;
+  }
+
 }
