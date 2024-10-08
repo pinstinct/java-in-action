@@ -12,6 +12,7 @@ import chapter2.FilteringApples.ApplePredicate;
 import chapter2.FilteringApples.AppleRedAndHeavyPredicate;
 import domain.Apple;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,5 +82,24 @@ class FilteringApplesTest {
     List<Integer> evenNumbers = filter(Arrays.asList(1, 2, 3, 4, 5), number -> number % 2 == 0);
     assertThat(evenNumbers.size()).isEqualTo(2);
     System.out.println(evenNumbers);
+  }
+
+  @Test
+  @DisplayName("Runnable로 코드 블록 실행하기")
+  void test7() {
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        System.out.println("Hello world");
+      }
+    });
+    thread.start();
+  }
+
+  @Test
+  @DisplayName("Runnable로 코드 블록 실행하기 with 람다")
+  void test8() {
+    Thread thread = new Thread(() -> System.out.println("Hello world"));
+    thread.start();
   }
 }
