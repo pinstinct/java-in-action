@@ -61,4 +61,12 @@ class FilteringApplesTest {
     assertThat(apples.size()).isEqualTo(1);
     System.out.println(apples);
   }
+
+  @Test
+  @DisplayName("여섯 번째 시도: 람다 표현식 사용")
+  void test5() {
+    List<Apple> apples = filterApples(inventory, apple -> RED.equals(apple.getColor()));
+    assertThat(apples.size()).isEqualTo(1);
+    System.out.println(apples);
+  }
 }
