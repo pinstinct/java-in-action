@@ -7,11 +7,13 @@ import java.io.IOException;
 
 public class ExecuteAroundPattern {
 
-  static String processFile() throws IOException {
+  // 함수형 인터페이스 자리에 람다 사용 할 수 있도록 수정
+  static String processFile(BufferedReaderProcessor p) throws IOException {
     File file = new File(
         ExecuteAroundPattern.class.getClassLoader().getResource("data.txt").getFile());
     try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-      return br.readLine();  // 실제 필요한 작업을 하는 코드 (한 줄만 읽기)
+      // 3단계: 동작 실행
+      return p.process(br);
     }
   }
 }
