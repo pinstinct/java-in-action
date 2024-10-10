@@ -4,8 +4,10 @@ import static chapter3.Java8FunctionalInterface.filter;
 import static chapter3.Java8FunctionalInterface.forEach;
 import static chapter3.Java8FunctionalInterface.map;
 
+import domain.Apple;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -48,5 +50,21 @@ class Java8FunctionalInterfaceTest {
     Predicate<Integer> oddNumbers = (Integer i) -> i % 2 != 0;
     boolean result2 = oddNumbers.test(1000);  // 1000이라는 값을 Integer 객체로 박싱
     System.out.println(result2);
+  }
+
+  @Test
+  @DisplayName("지역 변수 사용")
+  void test5() {
+    int portNumber = 1337;
+    Runnable r = () -> System.out.println(portNumber);
+    r.run();
+  }
+
+  @Test
+  @DisplayName("지역 변수 제약")
+  void test6() {
+    int portNumber = 1337;
+//    Runnable r = () -> System.out.println(portNumber);  // 에러
+    portNumber = 31333;
   }
 }
