@@ -4,7 +4,7 @@ import constant.Colors;
 
 public class Apple {
 
-  private int weight = 0;
+  private Integer weight = 0;
   private Colors color;
 
   public Apple(int weight, Colors color) {
@@ -12,16 +12,29 @@ public class Apple {
     this.color = color;
   }
 
+  public Apple() {
+
+  }
+
+  public Apple(Integer weight) {
+    this.weight = weight;
+  }
+
+  public Apple(Integer weight, Integer height, Colors colors) {
+    this.weight = weight;
+    this.color = colors;
+  }
+
   @Override
   public String toString() {
     return "Apple{" + "weight=" + weight + ", color='" + color + '\'' + '}';
   }
 
-  public int getWeight() {
+  public Integer getWeight() {
     return weight;
   }
 
-  public void setWeight(int weight) {
+  public void setWeight(Integer weight) {
     this.weight = weight;
   }
 
