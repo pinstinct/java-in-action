@@ -8,6 +8,7 @@ import domain.Apple;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,8 @@ import org.junit.jupiter.api.Test;
 
 class FilteringApplesTest {
 
-  List<Apple> inventory = Arrays.asList(
-      new Apple(80, GREEN),
-      new Apple(155, GREEN),
+  List<Apple> inventory = Arrays.asList(new Apple(80, GREEN), new Apple(155, GREEN),
+      new Apple(155, RED),
       new Apple(120, RED));
 
   @Nested
@@ -71,6 +71,67 @@ class FilteringApplesTest {
     void test6() {
       inventory.sort(comparing(Apple::getWeight));
       System.out.println(inventory);
+    }
+  }
+
+  @Nested
+  @DisplayName("람다 표현식을 조합할 수 있는 유용한 메서드")
+  class LambdaPractice {
+
+    @Test
+    @DisplayName("Comparator 조합 - 역정렬")
+    void test1() {
+      inventory.sort(comparing(Apple::getWeight).reversed());  // 무게 내림차순 정렬
+      System.out.println(inventory);
+    }
+
+    @Test
+    @DisplayName("Comparator 조합 - 연결")
+    void test2() {
+      inventory.sort(comparing(Apple::getWeight).reversed()  // 무게 내림차순 정렬
+          .thenComparing(Apple::getColor));  // 사과의 무게가 같다면 색으로 정렬
+      System.out.println(inventory);
+    }
+
+    @Test
+    @DisplayName("Function 조합 - andThen")
+    void test3() {
+      Function<Integer, Integer> f = x -> x + 1;
+      Function<Integer, Integer> g = x -> x * 2;
+      // g(f(x))
+      Function<Integer, Integer> h = f.andThen(g);
+      int result = h.apply(1);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("Function 조합 - apply")
+    void test4() {
+      Function<Integer, Integer> f = x -> x + 1;
+      Function<Integer, Integer> g = x -> x * 2;
+      // f(g(x))
+      Function<Integer, Integer> h = f.compose(g);
+      int result = h.apply(1);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("Function 조합 - 헤더 추가 후 철자 검사를 하고, 마지막에 푸터 추가")
+    void test5() {
+      Function<String, String> addHeader = Letter::addHeader;
+      Function<String, String> transformationPipeline = addHeader.andThen(Letter::checkSpelling)
+          .andThen(Letter::addFooter);
+      String result = transformationPipeline.apply("hi, labda");
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("Function 조합 - 헤더와 푸터만 추가")
+    void test6() {
+      Function<String, String> addHeader = Letter::addHeader;
+      Function<String, String> transformationPipeline = addHeader.andThen(Letter::addFooter);
+      String result = transformationPipeline.apply("hi, labda");
+      System.out.println(result);
     }
   }
 }
