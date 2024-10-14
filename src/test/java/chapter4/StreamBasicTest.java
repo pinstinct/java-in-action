@@ -106,4 +106,23 @@ public class StreamBasicTest {
         .toList();
     System.out.println(highCaloricDishes);
   }
+
+  @Test
+  @DisplayName("스트림 파이프라인 확인하기")
+  void test6() {
+    List<String> names = menus.stream()
+        // filter, map 서로 다른 연산이지만 한 과정으로 병합(루프 퓨전)
+        .filter(dish -> {
+          System.out.println("filtering:" + dish.getName());
+          return dish.getCalories() > 300;
+        })
+        .map(dish -> {
+          System.out.println("mapping:" + dish.getName());
+          return dish.getName();
+        })
+        .limit(3)  // 처음 3개만 선택 됨(쇼트서킷)
+        .toList();
+    System.out.println(names);
+  }
+
 }
