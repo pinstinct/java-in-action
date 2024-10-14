@@ -4,6 +4,7 @@ import constant.Type;
 import domain.Dish;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -209,5 +210,61 @@ public class StreamTest {
       pairs.forEach(p -> System.out.println(Arrays.toString(p)));
     }
 
+  }
+
+  @Nested
+  @DisplayName("검색과 매칭")
+  class SearchAndMatch {
+
+    @Test
+    @DisplayName("프레디케이트가 적어도 한 요소와 일치하는지 확인")
+    void test1() {
+      boolean result = menus.stream()
+          .anyMatch(Dish::isVegetarian);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("프레디케이트가 모든 요소와 일치하는지 검사")
+    void test2() {
+      boolean result = menus.stream()
+          .anyMatch(dish -> dish.getCalories() < 1000);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("nonMatch")
+    void test3() {
+      boolean result = menus.stream()
+          .noneMatch(menu -> menu.getCalories() >= 1000);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("요소 검색")
+    void test4() {
+      // findAny는 아무 요소도 반환하지 않을 수 있으므로 Optional 클래스 반환
+      Optional<Dish> dish = menus.stream()
+          .filter(Dish::isVegetarian)
+          .findAny();  // 결과를 찾는 즉시 실행 종료
+      System.out.println(dish);
+
+      menus.stream()
+          .filter(Dish::isVegetarian)
+          .findAny()
+          .ifPresent(dish1 -> System.out.println(dish1.getName()));  // 값이 있으면 출력, 없으면 아무 일도 일어나지 않음
+    }
+
+    @Test
+    @DisplayName("첫 번째 요소 찾기")
+    void test5() {
+      // 숫자 리스트에서 3으로 나누어떨어지는 첫 번째 제곱값을 반환하는 코드
+      List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+      Optional<Integer> first = numbers.stream()
+          .map(n -> n * n)
+          .filter(n -> (n % 3) == 0)
+          .findFirst();
+      System.out.println(first);
+    }
   }
 }
