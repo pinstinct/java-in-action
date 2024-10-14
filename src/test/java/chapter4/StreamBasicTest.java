@@ -44,7 +44,7 @@ public class StreamBasicTest {
 
     List<String> lowCaloricDishesName = new ArrayList<>();
     for (Dish dish : lowCaloricDishes) {
-      lowCaloricDishesName.add(dish.getName());
+      lowCaloricDishesName.add(dish.getName());  // 정렬된 리스트를 처리하면서 요리 이름 선택
     }
     System.out.println(lowCaloricDishesName);
   }
@@ -53,11 +53,21 @@ public class StreamBasicTest {
   @DisplayName("자바 8 이후 코드")
   void test2() {
     List<String> lowCaloricDishesName = menus.stream()
+        .filter(dish -> dish.getCalories() < 400)  // 400 칼로리 이하의 요리 선택
+        .sorted(comparing(Dish::getCalories))  // 칼로리로 요리 정렬
+        .map(Dish::getName)  // 요리명 추출
+        .toList();  // 요리명을 리스트에 저장
+    System.out.println(lowCaloricDishesName);
+  }
+
+  @Test
+  @DisplayName("자바 8 이후 코드 - 병렬 실행")
+  void test3() {
+    List<String> lowCaloricDishesName = menus.parallelStream()
         .filter(dish -> dish.getCalories() < 400)
         .sorted(comparing(Dish::getCalories))
         .map(Dish::getName)
         .toList();
     System.out.println(lowCaloricDishesName);
   }
-
 }

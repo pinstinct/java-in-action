@@ -2,6 +2,7 @@ package domain;
 
 import constant.Type;
 
+// 불변형 클래스
 public class Dish {
 
   private final String name;
