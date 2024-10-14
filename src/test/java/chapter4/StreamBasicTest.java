@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,5 +83,27 @@ public class StreamBasicTest {
         .limit(3)
         .collect(toList());  // 파이프라인을 처리해 결과 반환(collect 를 호출하기 전까지 menu 에서 무엇도 선택되지 않으며 출력 결과도 없다.)
     System.out.println(threeHighCaloricDishNames);
+  }
+
+  @Test
+  @DisplayName("스트림과 컬렉션 예제")
+  void test5() {
+    // as-is
+    List<String> result = new ArrayList<>();
+    Iterator<Dish> iterator = menus.iterator();
+    while (iterator.hasNext()) {
+      Dish dish = iterator.next();
+      if (dish.getCalories() > 300) {
+        result.add(dish.getName());
+      }
+    }
+    System.out.println(result);
+
+    // to-be
+    List<String> highCaloricDishes = menus.stream()
+        .filter(menu -> menu.getCalories() > 300)
+        .map(Dish::getName)
+        .toList();
+    System.out.println(highCaloricDishes);
   }
 }
