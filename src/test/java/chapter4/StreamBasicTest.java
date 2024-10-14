@@ -1,6 +1,7 @@
 package chapter4;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 import constant.Type;
 import domain.Dish;
@@ -69,5 +70,17 @@ public class StreamBasicTest {
         .map(Dish::getName)
         .toList();
     System.out.println(lowCaloricDishesName);
+  }
+
+  @Test
+  @DisplayName("스트림 시작하기 예")
+  void test4() {
+    // 데이터 소스: menus
+    List<String> threeHighCaloricDishNames = menus.stream()
+        .filter(dish -> dish.getCalories() > 300)
+        .map(Dish::getName)
+        .limit(3)
+        .collect(toList());  // 파이프라인을 처리해 결과 반환(collect 를 호출하기 전까지 menu 에서 무엇도 선택되지 않으며 출력 결과도 없다.)
+    System.out.println(threeHighCaloricDishNames);
   }
 }
