@@ -267,4 +267,48 @@ public class StreamTest {
       System.out.println(first);
     }
   }
+
+  @Nested
+  @DisplayName("리듀싱")
+  class Reducing {
+
+    List<Integer> numbers = Arrays.asList(4, 5, 3, 9);
+
+    @Test
+    @DisplayName("요소의 합")
+    void test1() {
+      int sum = numbers.stream()
+          .reduce(0, (a, b) -> a + b);  // reduce(초기값, BinaryOperator<T>)
+      System.out.println(sum);
+
+      int sum2 = numbers.stream()
+          .reduce(0, Integer::sum);
+      System.out.println(sum2);
+    }
+
+    @Test
+    @DisplayName("최댓값과 최솟값")
+    void test2() {
+      Optional<Integer> max = numbers.stream()
+          .reduce(Integer::max);
+      System.out.println(max);
+
+      Optional<Integer> min = numbers.stream()
+          .reduce(Integer::min);
+      System.out.println(min);
+    }
+
+    @Test
+    @DisplayName("퀴즈 - map과 reduce 메서드를 이용해서 스트림의 요리 개수를 계산")
+    void test3() {
+      Optional<Integer> result = menus.stream()
+          .map(menu -> 1)
+          .reduce(Integer::sum);
+      System.out.println(result);
+
+      // 위와 동일
+      long count = menus.stream().count();
+      System.out.println(count);
+    }
+  }
 }
