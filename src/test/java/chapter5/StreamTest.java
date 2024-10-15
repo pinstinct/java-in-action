@@ -228,7 +228,7 @@ public class StreamTest {
     @DisplayName("프레디케이트가 모든 요소와 일치하는지 검사")
     void test2() {
       boolean result = menus.stream()
-          .anyMatch(dish -> dish.getCalories() < 1000);
+          .allMatch(dish -> dish.getCalories() < 1000);
       System.out.println(result);
     }
 
