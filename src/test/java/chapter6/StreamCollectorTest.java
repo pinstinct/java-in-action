@@ -1,26 +1,36 @@
 package chapter6;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.averagingInt;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.maxBy;
 import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.summarizingInt;
 import static java.util.stream.Collectors.summingInt;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
+import constant.CaloricLevel;
 import constant.Type;
 import domain.Dish;
 import domain.Transaction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,13 +38,13 @@ import org.junit.jupiter.api.Test;
 @DisplayName("스트림으로 데이터 수집")
 public class StreamCollectorTest {
 
-  List<Transaction> transactions = Arrays.asList(
+  List<Transaction> transactions = asList(
       new Transaction(2000, Currency.getInstance("USD")),
       new Transaction(1500, Currency.getInstance("USD")),
       new Transaction(1000, Currency.getInstance("KRW")),
       new Transaction(3000, Currency.getInstance("KRW")));
 
-  List<Dish> menus = Arrays.asList(
+  List<Dish> menus = asList(
       new Dish("pork", false, 800, Type.MEAT),
       new Dish("beef", false, 700, Type.MEAT),
       new Dish("chicken", false, 400, Type.MEAT),
@@ -169,6 +179,181 @@ public class StreamCollectorTest {
       // 간결하고 가독성이 좋으며, IntStream 덕분에 자동 언박싱 과정을 회피하므로 성능도 좋다.
       int totalCalories2 = menus.stream().mapToInt(Dish::getCalories).sum();
       System.out.println(totalCalories2);
+    }
+  }
+
+  @Nested
+  @DisplayName("그룹화")
+  class Grouping {
+
+    @Test
+    @DisplayName("분류 함수")
+    void test1() {
+      Map<Type, List<Dish>> dishesByType = menus.stream()
+          .collect(groupingBy(Dish::getType));  // 분류 함수(classification function): 함수를 기준으로 스트림을 그룹화
+      System.out.println(dishesByType);
+    }
+
+    @Test
+    @DisplayName("메서드 참조를 분류 함수로 사용할 수 없는 경우")
+    void test2() {
+      Map<CaloricLevel, List<Dish>> dishesByCaloricLevel = menus.stream()
+          .collect(groupingBy(dish -> {
+            if (dish.getCalories() <= 400) {
+              return CaloricLevel.DIET;
+            } else if (dish.getCalories() <= 700) {
+              return CaloricLevel.NORMAL;
+            } else {
+              return CaloricLevel.FAT;
+            }
+          }));
+      System.out.println(dishesByCaloricLevel);
+    }
+
+    @Nested
+    @DisplayName("그룹화된 요소 조작")
+    class Element {
+
+      @Test
+      @DisplayName("문제점- 조건을 만족하는 요리가 없는 경우 키 자체가 사라짐")
+      void test1() {
+        // 500 칼로리만 넘는 요리만 필터링
+        Map<Type, List<Dish>> caloricDishesByType = menus.stream()
+            .filter(dish -> dish.getCalories() > 500)
+            .collect(groupingBy(Dish::getType));
+        System.out.println(caloricDishesByType);
+        // 결과: {OTHER=[Dish{name='french fries'}, Dish{name='pizza'}], MEAT=[Dish{name='pork'}, Dish{name='beef'}]}
+        // FISH 키 자체가 사라짐
+      }
+
+      @Test
+      @DisplayName("groupingBy 팩토리 메서드를 오버로드해 문제 해결")
+      void test2() {
+        Map<Type, List<Dish>> caloricDishesByType = menus.stream()
+            .collect(
+                groupingBy(Dish::getType,
+                    filtering(dish -> dish.getCalories() > 500, toList())));  // filtering
+        System.out.println(caloricDishesByType);
+      }
+
+      @Test
+      @DisplayName("mapping 메서드")
+      void test3() {
+        Map<Type, List<String>> dishNamesByType = menus.stream()
+            .collect(groupingBy(Dish::getType, mapping(Dish::getName, toList())));
+        System.out.println(dishNamesByType);
+      }
+
+      @Test
+      @DisplayName("flatMapping")
+      void test4() {
+        Map<String, List<String>> dishTags = new HashMap<>();
+        dishTags.put("pork", asList("greasy", "salty"));
+        dishTags.put("beef", asList("salty", "roasted"));
+        dishTags.put("chicken", asList("fried", "crisp"));
+        dishTags.put("french fries", asList("greasy", "fried"));
+        dishTags.put("rice", asList("light", "natural"));
+        dishTags.put("season fruit", asList("fresh", "natural"));
+        dishTags.put("pizza", asList("tasty", "salty"));
+        dishTags.put("prawns", asList("tasty", "roasted"));
+        dishTags.put("salmon", asList("delicious", "fresh"));
+
+        Map<Type, Set<String>> dishNamesByType = menus.stream()
+            .collect(groupingBy(Dish::getType,
+                flatMapping(dish -> dishTags.get(dish.getName()).stream(),
+                    toSet())));  // 집합으로 그룹화해 중복 태그 제거
+        System.out.println(dishNamesByType);
+      }
+    }
+
+    @Nested
+    @DisplayName("다수준 그룹화")
+    class MultiLevelGroup {
+
+      @Test
+      void test1() {
+        Map<Type, Map<CaloricLevel, List<Dish>>> dishesByTypeCaloricLevel = menus.stream()
+            .collect(groupingBy(Dish::getType,  // 첫 번째 수준의 분류 함수
+                groupingBy(dish -> {  // 두 번째 수준의 분류 함수
+                  if (dish.getCalories() <= 400) {
+                    return CaloricLevel.DIET;
+                  } else if (dish.getCalories() <= 700) {
+                    return CaloricLevel.NORMAL;
+                  } else {
+                    return CaloricLevel.FAT;
+                  }
+                })
+            ));
+        System.out.println(dishesByTypeCaloricLevel);
+      }
+    }
+
+    @Nested
+    @DisplayName("서브그룹으로 데이터 수집")
+    class SubGroup {
+
+      @Test
+      @DisplayName("groupingBy(분류함수, counting 컬렉터)")
+      void test1() {
+        Map<Type, Long> typesCount = menus.stream()
+            .collect(groupingBy(Dish::getType, counting()));
+        System.out.println(typesCount);
+      }
+
+      @Test
+      @DisplayName("groupingBy(분류함수, maxBy 컬렉터")
+      void test2() {
+        Map<Type, Optional<Dish>> mostCaloricByType = menus.stream()
+            .collect(groupingBy(Dish::getType, maxBy(Comparator.comparingInt(Dish::getCalories))));
+        System.out.println(mostCaloricByType);
+      }
+
+      @Test
+      @DisplayName("컬렉터 결과를 다른 형식에 적용하기 - 위의 결과에서 Optional 제거")
+      void test3() {
+        Map<Type, Dish> mostCaloricByType = menus.stream()
+            .collect(groupingBy(Dish::getType,  // 분류 함수
+                collectingAndThen(
+                    maxBy(Comparator.comparingInt(Dish::getCalories)),  // 감싸인 컬렉터
+                    Optional::get  // 반환 함수
+                )
+            ));
+        System.out.println(mostCaloricByType);
+      }
+
+      @Test
+      @DisplayName("groupingBy와 함께 사용하는 다른 컬렉터 예제")
+      void test4() {
+        Map<Type, Integer> totalCaloriesByType = menus.stream()
+            .collect(groupingBy(Dish::getType, summingInt(Dish::getCalories)));
+        System.out.println(totalCaloriesByType);
+
+        Map<Type, Set<CaloricLevel>> caloricLevelsByType = menus.stream()
+            .collect(
+                groupingBy(Dish::getType, mapping(dish -> {
+                  if (dish.getCalories() <= 400) {
+                    return CaloricLevel.DIET;
+                  } else if (dish.getCalories() <= 700) {
+                    return CaloricLevel.NORMAL;
+                  } else {
+                    return CaloricLevel.FAT;
+                  }
+                }, toSet()))  // toSet 컬렉터로 중복 제거
+            );
+        System.out.println(caloricLevelsByType);
+
+        Map<Type, HashSet<CaloricLevel>> caloricLevelsByType2 = menus.stream().collect(
+            groupingBy(Dish::getType, mapping(dish -> {
+              if (dish.getCalories() <= 400)
+                return CaloricLevel.DIET;
+              else if (dish.getCalories() <= 700) {
+                return CaloricLevel.NORMAL;
+              } else
+                return CaloricLevel.FAT;
+            }, toCollection(HashSet::new)))
+        );
+        System.out.println(caloricLevelsByType2);
+      }
     }
   }
 }
