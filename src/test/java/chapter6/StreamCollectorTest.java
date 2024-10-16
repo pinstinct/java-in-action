@@ -426,4 +426,39 @@ public class StreamCollectorTest {
       return IntStream.rangeClosed(2, n).boxed().collect(partitioningBy(i -> isPrime(i)));
     }
   }
+
+  @Nested
+  @DisplayName("Collector 인터페이스")
+  class CollectInterface {
+
+    @Test
+    @DisplayName("응용하기")
+    void test1() {
+      // 직접 생성한 컬렉터 이용
+      List<Dish> dish = menus.stream()
+          .collect(new ToListCollector<Dish>());  // 인스턴스화
+      System.out.println(dish);
+
+      System.out.println("===");
+      // 위와 동일한 코드
+      List<Dish> dish2 = menus.stream()
+          .collect(toList());  // 팩토리
+      System.out.println(dish2);
+    }
+
+    @Test
+    @DisplayName("컬렉터 구현을 만들지 않고도 커스텀 수집 수행하기")
+    void test2() {
+      // 가독성이 떨어지는 방법
+      // 적절한 클래스로 커스텀 컬렉터를 구현(위의 방법)하는 편이 중복을 피하고 재사용성을 높이는 데 도움이 됨
+      List<Dish> dishes = menus.stream().collect(
+          // 리스트에 수집
+          ArrayList::new,  // 발행
+          List::add,  // 누적
+          List::addAll  // 합침
+          // Characteristics 전달 불가
+      );
+      System.out.println(dishes);
+    }
+  }
 }
