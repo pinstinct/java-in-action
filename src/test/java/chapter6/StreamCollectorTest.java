@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.summarizingInt;
 import static java.util.stream.Collectors.summingInt;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -354,6 +356,74 @@ public class StreamCollectorTest {
         );
         System.out.println(caloricLevelsByType2);
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("분할")
+  class Divide {
+
+    @Test
+    @DisplayName("분할 함수")
+    void test1() {
+      Map<Boolean, List<Dish>> partitionedMenu = menus.stream()
+          .collect(partitioningBy(Dish::isVegetarian));  // 분할 함수
+      System.out.println(partitionedMenu);
+
+      System.out.println("===");
+
+      List<Dish> vegetarianDishes = partitionedMenu.get(true);
+      System.out.println(vegetarianDishes);
+
+      System.out.println("===");
+
+      List<Dish> vegetarianDishes2 = menus.stream().filter(Dish::isVegetarian).toList();
+      System.out.println(vegetarianDishes2);
+    }
+
+    @Test
+    @DisplayName("분할의 장점")
+    void test2() {
+      Map<Boolean, Map<Type, List<Dish>>> vegetarianDishesByType = menus.stream()
+          .collect(partitioningBy(Dish::isVegetarian,  // 분할함수
+              groupingBy(Dish::getType))  // 두 번째 컬렉터
+          );
+      System.out.println(vegetarianDishesByType);
+
+      Map<Boolean, Dish> mostCaloricPartitionedByVegetarian = menus.stream().collect(
+          partitioningBy(Dish::isVegetarian,
+              collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get)));
+      System.out.println(mostCaloricPartitionedByVegetarian);
+    }
+
+    @Test
+    @DisplayName("퀴즈 6-2")
+    void test3() {
+      Map<Boolean, Map<Boolean, List<Dish>>> result1 = menus.stream().collect(
+          partitioningBy(Dish::isVegetarian, partitioningBy(dish -> dish.getCalories() > 500)));
+      System.out.println(result1);
+
+      Map<Boolean, Long> result3 = menus.stream()
+          .collect(partitioningBy(Dish::isVegetarian, counting()));
+      System.out.println(result3);
+    }
+
+    @Test
+    @DisplayName("숫자를 소수와 비소수로 분할하기")
+    void test4() {
+      Map<Boolean, List<Integer>> result = partitionPrimes(23);
+      System.out.println(result);
+    }
+
+    // 주어진 수가 소수인지 아닌지 판단하는 프레디케이트
+    public boolean isPrime(int candidate) {
+      int candidateRoot = (int) Math.sqrt((double) candidate);  // 제곱근 이하의 수로 제한
+      return IntStream.rangeClosed(2, candidateRoot)
+          .noneMatch(i -> candidate % i == 0);  // 스트림의 모든 정수로 candidate를 나눌 수 없으면 참을 반환
+    }
+
+    public Map<Boolean, List<Integer>> partitionPrimes(int n) {
+      return IntStream.rangeClosed(2, n).boxed().collect(partitioningBy(i -> isPrime(i)));
     }
   }
 }
