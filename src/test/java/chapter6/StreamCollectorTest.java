@@ -1,5 +1,6 @@
 package chapter6;
 
+import static chapter6.PrimeNumber.partitionPrimesWithCustomCollector;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.averagingInt;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -57,6 +58,17 @@ public class StreamCollectorTest {
       new Dish("prawns", false, 300, Type.FISH),
       new Dish("salmon", false, 450, Type.FISH)
   );
+
+  // 주어진 수가 소수인지 아닌지 판단하는 프레디케이트
+  public boolean isPrime(int candidate) {
+    int candidateRoot = (int) Math.sqrt((double) candidate);  // 제곱근 이하의 수로 제한
+    return IntStream.rangeClosed(2, candidateRoot)
+        .noneMatch(i -> candidate % i == 0);  // 스트림의 모든 정수로 candidate를 나눌 수 없으면 참을 반환
+  }
+
+  public Map<Boolean, List<Integer>> partitionPrimes(int n) {
+    return IntStream.rangeClosed(2, n).boxed().collect(partitioningBy(i -> isPrime(i)));
+  }
 
   @Nested
   @DisplayName("컬렉터란 무엇인가")
@@ -414,17 +426,6 @@ public class StreamCollectorTest {
       Map<Boolean, List<Integer>> result = partitionPrimes(23);
       System.out.println(result);
     }
-
-    // 주어진 수가 소수인지 아닌지 판단하는 프레디케이트
-    public boolean isPrime(int candidate) {
-      int candidateRoot = (int) Math.sqrt((double) candidate);  // 제곱근 이하의 수로 제한
-      return IntStream.rangeClosed(2, candidateRoot)
-          .noneMatch(i -> candidate % i == 0);  // 스트림의 모든 정수로 candidate를 나눌 수 없으면 참을 반환
-    }
-
-    public Map<Boolean, List<Integer>> partitionPrimes(int n) {
-      return IntStream.rangeClosed(2, n).boxed().collect(partitioningBy(i -> isPrime(i)));
-    }
   }
 
   @Nested
@@ -459,6 +460,45 @@ public class StreamCollectorTest {
           // Characteristics 전달 불가
       );
       System.out.println(dishes);
+    }
+  }
+
+  @Nested
+  @DisplayName("커스텀 컬렉터를 구현해서 성능 개선하기")
+  class CustomCollector {
+
+    @Test
+    @DisplayName("소수 구하기")
+    void test1() {
+      Map<Boolean, List<Integer>> result = partitionPrimesWithCustomCollector(22);
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("컬렉터 성능 비교")
+    void test2() {
+      // 하니스(harness) 테스트
+      long fastest = Long.MAX_VALUE;
+      for (int i = 0; i < 10; i++) {  // 테스트 10번 반복
+        long start = System.nanoTime();
+        partitionPrimes(1_000_000);  // 백만 개의 숫자를 소수와 비소수로 분할
+        long duration = (System.nanoTime() - start) / 1_000_000;
+        if (duration < fastest) fastest = duration;  // 밀리초 단위로 측정
+      }
+      System.out.println("Fastest Execution done in " + fastest + "m secs");
+    }
+
+    @Test
+    @DisplayName("컬렉터 성능 비교- 커스텀 컬렉터")
+    void test3() {
+      long fastest = Long.MAX_VALUE;
+      for (int i = 0; i < 10; i++) {  // 테스트 10번 반복
+        long start = System.nanoTime();
+        partitionPrimesWithCustomCollector(1_000_000);
+        long duration = (System.nanoTime() - start) / 1_000_000;
+        if (duration < fastest) fastest = duration;
+      }
+      System.out.println("Fastest Execution done in " + fastest + "m secs");
     }
   }
 }
