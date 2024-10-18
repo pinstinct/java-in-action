@@ -95,4 +95,25 @@ public class CollectionApiTest {
       System.out.println(ageOffFriends);
     }
   }
+
+  @Nested
+  @DisplayName("리스트와 집합 처리")
+  class ListAndSetTest {
+
+    List<String> referenceCodes = Arrays.asList("a12", "c14", "b13");
+
+    @Test
+    @DisplayName("replaceAll 메서드")
+    void test1() {
+      // 새 문자열 컬렉션 생성
+      referenceCodes.stream()
+          .map(code -> Character.toUpperCase(code.charAt(0)) + code.substring(1))
+          .toList()
+          .forEach(System.out::println);
+
+      // 기존 컬렉션 수정
+      referenceCodes.replaceAll(code -> Character.toUpperCase(code.charAt(0)) + code.substring(1));
+      System.out.println(referenceCodes);
+    }
+  }
 }
