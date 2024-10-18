@@ -3,6 +3,7 @@ package chapter7;
 import static chapter7.CustomSum.iterativeSum;
 import static chapter7.CustomSum.parallelSum;
 import static chapter7.CustomSum.sequentialSum;
+import static chapter7.ForkJoinSumCalculator.forkJoinSum;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,6 +33,18 @@ public class ParallelStreamTest {
     @DisplayName("순차 스트림을 병렬 스트림으로 변환하기")
     public void test2() {
       long result = parallelSum(N);
+      System.out.println(result);
+    }
+  }
+
+  @Nested
+  @DisplayName("포크/조인 프레임워크")
+  class ForkJoin {
+
+    @Test
+    @DisplayName("forkJoinSum")
+    void test1() {
+      long result = forkJoinSum(N);
       System.out.println(result);
     }
   }
