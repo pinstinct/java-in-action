@@ -2,11 +2,14 @@ package chapter8;
 
 import static java.util.Map.entry;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,6 +117,81 @@ public class CollectionApiTest {
       // 기존 컬렉션 수정
       referenceCodes.replaceAll(code -> Character.toUpperCase(code.charAt(0)) + code.substring(1));
       System.out.println(referenceCodes);
+    }
+  }
+
+  @Nested
+  @DisplayName("맵 처리")
+  class MapTest {
+
+    Map<String, Integer> ageOffFriends = Map.ofEntries(
+        entry("Raphael", 30),
+        entry("Olivia", 25),
+        entry("Thibaut", 26)
+    );
+
+    Map<String, String> favoriteMovies = Map.ofEntries(
+        entry("Raphael", "Star Wars"),
+        entry("Cristina", "Matrix"),
+        entry("Olivia", "James Bond")
+    );
+
+    @Test
+    @DisplayName("forEach 메서드 - 자바 8 이전")
+    void test1() {
+      for (Map.Entry<String, Integer> entry : ageOffFriends.entrySet()) {
+        String friend = entry.getKey();
+        Integer age = entry.getValue();
+        System.out.println(friend + " is " + age + " years old");
+      }
+    }
+
+    @Test
+    @DisplayName("forEach 메서드 - 자바 8 이후")
+    void test2() {
+      ageOffFriends.forEach(
+          (friend, age) -> System.out.println(friend + " is " + age + " years old"));
+    }
+
+    @Test
+    @DisplayName("정렬 메서드")
+    void test3() {
+      // 사람의 이름을 알파벳 순으로 스트림 요소를 처리
+      favoriteMovies.entrySet().stream()
+          .sorted(Entry.comparingByKey())
+          .forEachOrdered(System.out::println);
+    }
+
+    @Test
+    @DisplayName("getOrDefault 메서드")
+    void test4() {
+      String movie = favoriteMovies.getOrDefault("Olivia", "Matrix");
+      System.out.println(movie);
+    }
+
+    @Test
+    @DisplayName("계산 패턴 - 자바 8 이전")
+    void test5() {
+      Map<String, List<String>> friendsToMovies = new HashMap<>();
+
+      String friend = "Raphael";
+      List<String> movies = friendsToMovies.get(friend);
+      if (movies == null) {
+        movies = new ArrayList<>();
+        friendsToMovies.put(friend, movies);
+      }
+      movies.add("Star Wars");
+
+      System.out.println(friendsToMovies);
+    }
+
+    @Test
+    @DisplayName("계산 패턴 - 자바 8 이후")
+    void test6() {
+      Map<String, List<String>> friendsToMovies = new HashMap<>();
+      friendsToMovies.computeIfAbsent("Raphael", name -> new ArrayList<>())
+          .add("Star wars");
+      System.out.println(friendsToMovies);
     }
   }
 }
