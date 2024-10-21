@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -307,6 +310,39 @@ public class CollectionApiTest {
       // 정답
       movies.entrySet().removeIf(entry -> entry.getValue() < 10);
       System.out.println(movies);
+    }
+  }
+
+  @Nested
+  @DisplayName("개선된 ConcurrentHashMap")
+  class ConcurrentHashMapTest {
+
+    @Test
+    @DisplayName("리듀스와 검색")
+    void test1() {
+      ConcurrentHashMap<String, Long> map = new ConcurrentHashMap<>();
+      long parallelismThreshold = 1;
+      Optional<Long> maxValue = Optional.ofNullable(map.reduceValues(parallelismThreshold, Long::max));
+      System.out.println(maxValue);
+    }
+
+    @Test
+    @DisplayName("계수")
+    void test2() {
+      ConcurrentHashMap<Object, Object> hashMap = new ConcurrentHashMap<>();
+      long result = hashMap.mappingCount();
+      System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("집합뷰")
+    void test3() {
+      ConcurrentHashMap<Object, Object> hashMap = new ConcurrentHashMap<>();
+      hashMap.put("test", 1);
+      hashMap.put("abc", 2);
+      System.out.println(hashMap);
+      KeySetView<Object, Object> objects = hashMap.keySet();
+      System.out.println(objects);
     }
   }
 }
