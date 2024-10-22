@@ -1,8 +1,11 @@
 package chapter9;
 
+import static chapter3.Java8FunctionalInterface.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import chapter9.ProductFactory.Product;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
@@ -193,6 +196,48 @@ public class RefactoringTest {
     @DisplayName("팩토리 - 람다 표현식 사용")
     void test9() {
       ProductFactoryLambda.Product p = ProductFactoryLambda.createProduct("loan");
+    }
+  }
+
+  @Nested
+  @DisplayName("람다 테스팅")
+  class LambdaTest {
+
+    @Test
+    @DisplayName("단위 테스팅")
+    void test1() {
+      Point p1 = new Point(5, 5);
+      Point p2 = p1.moveRightBy(10);
+      assertThat(p2.getX()).isEqualTo(15);
+      assertThat(p2.getY()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("보이는 람다 표현식의 동작 테스팅")
+    void test2() {
+      Point p1 = new Point(10, 15);
+      Point p2 = new Point(10, 20);
+      int result = Point.compareByXAndThenY.compare(p1, p2);
+      assertThat(result).isLessThan(0);
+    }
+
+    @Test
+    @DisplayName("람다를 사용하는 메서드의 동작에 집중하라")
+    void test3() {
+      List<Point> points = Arrays.asList(new Point(5, 5), new Point(10, 5));
+      List<Point> expected = Arrays.asList(new Point(15, 5), new Point(20, 5));
+      List<Point> result = Point.moveAllPointsRightBy(points, 10);
+      assertThat(result).containsExactlyElementsOf(expected);
+    }
+
+    @Test
+    @DisplayName("고차원 함수 테스팅")
+    void test4() {
+      List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+      List<Integer> even = filter(numbers, i -> i % 2 == 0);
+      List<Integer> smallerThanThree = filter(numbers, i -> i < 3);
+      assertThat(even).isEqualTo(Arrays.asList(2, 4));
+      assertThat(smallerThanThree).isEqualTo(Arrays.asList(1, 2));
     }
   }
 }
