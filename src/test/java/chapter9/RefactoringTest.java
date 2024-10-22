@@ -240,4 +240,39 @@ public class RefactoringTest {
       assertThat(smallerThanThree).isEqualTo(Arrays.asList(1, 2));
     }
   }
+
+  @Nested
+  @DisplayName("디버깅")
+  class Debugging {
+
+    @Test
+    @DisplayName("스택 트레이스 확인")
+    void test1() {
+      List<Point> points = Arrays.asList(new Point(12, 2), null);
+      points.stream().map(point -> point.getX()).forEach(System.out::println);
+    }
+
+    @Test
+    @DisplayName("정보 로깅")
+    void test2() {
+      List<Integer> numbers = Arrays.asList(2, 3, 4, 5);
+      numbers.stream()
+          .map(x -> x + 17)
+          .filter(x -> x % 2 == 0)
+          .limit(3)
+          .forEach(System.out::println);  // forEach를 호출하는 순간 전체 스트림 소비
+
+      List<Integer> result = numbers.stream()
+          .peek(x -> System.out.println("from stream: " + x))  // 소스에서 처음 소비한 요소를 출력
+          .map(x -> x + 17)
+          .peek(x -> System.out.println("after map: " + x))  // map 동작 실행 결과를 출력
+          .filter(x -> x % 2 == 0)
+          .peek(x -> System.out.println("after filter: " + x))  // filter 동작 후 선택된 숫자를 출력
+          .limit(1)
+          .peek(x -> System.out.println("after limit: " + x))  // limit 동작 후 선택된 숫자를 출력
+          .toList();
+      System.out.println(result);
+    }
+
+  }
 }
