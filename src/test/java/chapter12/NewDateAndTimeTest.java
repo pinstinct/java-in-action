@@ -1,7 +1,11 @@
 package chapter12;
 
+import static java.time.DayOfWeek.FRIDAY;
+import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.Month.SEPTEMBER;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -13,9 +17,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.UnsupportedTemporalTypeException;
+import java.util.Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -182,5 +191,154 @@ public class NewDateAndTimeTest {
       Period threeWeeks = Period.ofWeeks(3);
       Period twoYearsSixMonthsOneDay = Period.of(2, 6, 1);
     }
+  }
+
+  @Nested
+  @DisplayName("날짜 조정, 파싱, 포매팅")
+  class ParsingAndFormatting {
+
+    @Test
+    @DisplayName("절대적인 방식으로 LocalDate의 속성 바꾸기")
+    void test1() {
+      // 새로운 객체를 반환 (기존 객체를 바꾸지 않음)
+      LocalDate date1 = LocalDate.of(2017, 9, 2);
+      LocalDate date2 = date1.withYear(2011);  // 2011-09-02
+      LocalDate date3 = date2.withDayOfMonth(25);  // 2011-09-25
+      LocalDate date4 = date3.with(ChronoField.MONTH_OF_YEAR, 2);  // 2011-02-25
+
+      System.out.println(date1);
+      System.out.println(date2);
+      System.out.println(date3);
+      System.out.println(date4);
+
+      int year = LocalDate.of(2024, 1, 1).get(ChronoField.YEAR);
+      System.out.println(year);
+    }
+
+    @Test
+    @DisplayName("상대적인 방식으로 LocalDate의 속성 바꾸기")
+    void test2() {
+      LocalDate date1 = LocalDate.of(2017, 9, 21);
+      LocalDate date2 = date1.plusWeeks(1);  // 2017-09-28
+      LocalDate date3 = date2.minusYears(6);  // 2011-09-28
+      LocalDate date4 = date3.plus(6, ChronoUnit.MONTHS);  // 2012-03-28
+
+      System.out.println(date1);
+      System.out.println(date2);
+      System.out.println(date3);
+      System.out.println(date4);
+    }
+
+    @Test
+    @DisplayName("퀴즈 - 다음 코드를 실행했을 때 date의 값은?")
+    void test3() {
+      LocalDate date = LocalDate.of(2014, 3, 18);
+      date = date.with(ChronoField.MONTH_OF_YEAR, 9);  // 2014-09-18
+      date = date.plusYears(2).minusDays(10);  // 2016-09-08
+      date.withYear(2011);  // 인스턴스가 생성되지만 변수에 할당하지 않으므로 아무 일도 일어나지 않음
+      System.out.println(date);
+    }
+
+    @Test
+    @DisplayName("TemporalAdjusters 사용하기")
+    void test4() {
+      LocalDate date1 = LocalDate.of(2014, 3, 18);
+      LocalDate date2 = date1.with(nextOrSame(DayOfWeek.SUNDAY));
+      LocalDate date3 = date2.with(lastDayOfMonth());
+    }
+
+    @Test
+    @DisplayName("퀴즈 - 커스텀 TemporalAdjuster 구현하기")
+    void test5() {
+      LocalDate date = LocalDate.of(2014, 3, 19);
+      date = date.with(new NextWorkingDay());
+      System.out.println(date);
+
+      // 람다표현식 이용
+      date = date.with(temporal -> {
+        DayOfWeek dayOfWeek = DayOfWeek.of(temporal.get(ChronoField.DAY_OF_WEEK));
+        int dayToAdd = 1;
+        if (dayOfWeek == FRIDAY) {
+          dayToAdd = 3;
+        } else if (dayOfWeek == SATURDAY) {
+          dayToAdd = 2;
+        }
+        return temporal.plus(dayToAdd, ChronoUnit.DAYS);
+      });
+      System.out.println(date);
+
+      // 람다표현식 정의
+      TemporalAdjuster nextWorkingDay = TemporalAdjusters.ofDateAdjuster(
+          temporal -> {
+            DayOfWeek dayOfWeek = DayOfWeek.of(temporal.get(ChronoField.DAY_OF_WEEK));
+            int dayToAdd = 1;
+            if (dayOfWeek == FRIDAY) {
+              dayToAdd = 3;
+            } else if (dayOfWeek == SATURDAY) {
+              dayToAdd = 2;
+            }
+            return temporal.plus(dayToAdd, ChronoUnit.DAYS);
+          }
+      );
+      date = date.with(nextWorkingDay);
+      System.out.println(date);
+    }
+
+    @Test
+    @DisplayName("날짜와 시간 객체 출력과 파싱")
+    void test6() {
+      LocalDate date = LocalDate.of(2014, 3, 18);
+
+      // DateTimeFormatter 이용해 날짜와 시간을 특정 형식의 문자열로 만들기
+      String s1 = date.format(DateTimeFormatter.BASIC_ISO_DATE);
+      String s2 = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+      System.out.println(s1);
+      System.out.println(s2);
+
+      // 날짜와 시간을 표현하는 문자열을 파싱해 날짜 객체로 만들기
+      LocalDate date1 = LocalDate.parse("20140318", DateTimeFormatter.BASIC_ISO_DATE);
+      LocalDate date2 = LocalDate.parse("2014-03-18", DateTimeFormatter.ISO_LOCAL_DATE);
+      System.out.println(date1);
+      System.out.println(date2);
+    }
+
+    @Test
+    @DisplayName("패턴으로 DateTimeFormatter 만들기")
+    void test7() {
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+      LocalDate date1 = LocalDate.of(2014, 3, 18);
+      String formatted = date1.format(formatter);
+      LocalDate date2 = LocalDate.parse(formatted, formatter);
+      System.out.println(date1);
+      System.out.println(date2);
+    }
+
+    @Test
+    @DisplayName("지역화된 DateTimeFormatter 만들기")
+    void test8() {
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d. MMMM yyyy", Locale.ITALIAN);
+      LocalDate date1 = LocalDate.of(2014, 3, 18);
+      String formatted = date1.format(formatter);
+      System.out.println(formatted);
+      LocalDate date2 = LocalDate.parse(formatted, formatter);
+      System.out.println(date2);
+    }
+
+    @Test
+    @DisplayName("DateTimeFormatterBuilder 클래스로 복합적인 포매터 만들기")
+    void test9() {
+      DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+          .appendText(ChronoField.DAY_OF_MONTH)
+          .appendLiteral(". ")
+          .appendText(ChronoField.MONTH_OF_YEAR)
+          .appendLiteral(" ")
+          .appendText(ChronoField.YEAR)
+          .parseCaseInsensitive()
+          .toFormatter(Locale.ITALIAN);
+      LocalDate date = LocalDate.of(2014, 3, 18);
+      String formatted = date.format(formatter);
+      System.out.println(formatted);
+    }
+
   }
 }
