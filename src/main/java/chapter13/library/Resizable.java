@@ -7,5 +7,5 @@ public interface Resizable extends Drawable {
   void setWidth(int width);
   void setHeight(int height);
   void setAbsoluteSize(int width, int height);
-  void setRelativeSize(int wFactor, int hFactor);  // version 2에 추가된 메서드
+//  void setRelativeSize(int wFactor, int hFactor);  // version 2에 추가된 메서드
 }
