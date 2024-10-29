@@ -3,6 +3,7 @@ package chapter12;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.THURSDAY;
+import static java.time.Month.MARCH;
 import static java.time.Month.SEPTEMBER;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
@@ -16,7 +17,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDate;
+import java.time.chrono.Chronology;
+import java.time.chrono.HijrahDate;
+import java.time.chrono.IsoChronology;
+import java.time.chrono.JapaneseDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -25,6 +35,7 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Locale;
+import java.util.TimeZone;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -340,5 +351,76 @@ public class NewDateAndTimeTest {
       System.out.println(formatted);
     }
 
+  }
+
+  @Nested
+  @DisplayName("다양한 시간대와 캘린더 활용 방법")
+  class Timezone {
+
+    @Test
+    @DisplayName("시간대 사용하기")
+    void test1() {
+      // 지역/도시 형식으로 이루어지며 IANA Time Zone Database에서 제공하는 지역 집합 정보 사용
+      ZoneId romeZone = ZoneId.of("Europe/Rome");
+
+      // 기존의 TimeZone 객체를 ZoneId 객체로 변환
+      ZoneId zoneId = TimeZone.getDefault().toZoneId();
+
+      // 특정 시점에 시간대 적용
+      LocalDate date = LocalDate.of(2014, Month.MARCH, 18);
+      ZonedDateTime zdt1 = date.atStartOfDay(romeZone);
+      LocalDateTime dateTime = LocalDateTime.of(2014, Month.MARCH, 18, 13, 45);
+      ZonedDateTime zdt2 = dateTime.atZone(romeZone);
+      Instant instant = Instant.now();
+      ZonedDateTime zdt3 = instant.atZone(romeZone);
+
+      System.out.println(zdt1);
+      System.out.println(zdt2);
+      System.out.println(zdt3);
+
+      // LocalDateTime을 Instant로 바꾸기
+      LocalDateTime timeForInstant = LocalDateTime.ofInstant(instant, romeZone);
+      System.out.println(timeForInstant);
+    }
+
+    @Test
+    @DisplayName("UTC/Greenwich 기준의 고정 오프셋")
+    void test2() {
+      // ZoneOffset으로는 서머타임을 제대로 처리할 수 없으므로 권장하지 않는 방식
+      ZoneOffset newYorkOffset = ZoneOffset.of("-05:00");
+
+      // ISO-8601 캘린더 시스템에서 정의하는 UTC/GMT와 오프셋으로 날짜와 시간을 표현하는 OffsetDateTime
+      LocalDateTime dateTime = LocalDateTime.of(2014, MARCH, 18, 13, 45);
+      OffsetDateTime offsetDateTime = OffsetDateTime.of(dateTime, newYorkOffset);
+      System.out.println(dateTime);
+      System.out.println(offsetDateTime);
+    }
+
+    @Test
+    @DisplayName("대안 캘린더 시스템 사용하기")
+    void test3() {
+      LocalDate date = LocalDate.of(2014, MARCH, 18);
+      JapaneseDate japaneseDate = JapaneseDate.from(date);
+      System.out.println(date);
+      System.out.println(japaneseDate);
+
+      Chronology japaneseChronology = Chronology.ofLocale(Locale.JAPAN);
+      // ChronoLocalDate보다는 LocalDate 사용 권장
+      ChronoLocalDate now = japaneseChronology.dateNow();
+      System.out.println(now);
+    }
+
+    @Test
+    @DisplayName("대안 캘린더 시스템 사용하기 - 이슬람력")
+    void test4() {
+      // Hijrah 캘린더 시스템은 태음월에 기초
+      HijrahDate ramadanDate = HijrahDate.now()
+          // 현재 Hijrah 날짜를 얻은 후, 라마단의 첫 번째 날로 바꿈
+          .with(ChronoField.DAY_OF_MONTH, 1)
+          .with(ChronoField.MONTH_OF_YEAR, 9);
+      System.out.println(
+          "Ramadan starts on " + IsoChronology.INSTANCE.date(ramadanDate) + " and ends on "
+              + IsoChronology.INSTANCE.date(ramadanDate.with(TemporalAdjusters.lastDayOfMonth())));
+    }
   }
 }
