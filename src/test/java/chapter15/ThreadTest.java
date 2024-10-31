@@ -113,4 +113,53 @@ public class ThreadTest {
     executorService.shutdown();
   }
 
+  @Test
+  @DisplayName("두 플로를 합치는 예제")
+  void test6() {
+    SimpleCell c1 = new SimpleCell("C1");
+    SimpleCell c2 = new SimpleCell("C2");
+    SimpleCell c3 = new SimpleCell("C3");
+
+    c1.subscribe(c3);
+    c1.onNext(10);  // c1 값을 10으로 갱신
+    c2.onNext(20);  // c2 값을 20으로 갱신
+  }
+
+  @Test
+  @DisplayName("두 플로를 합치는 예제 - 더하기")
+  void test7() {
+    ArithmeticCell c3 = new ArithmeticCell("c3");
+    SimpleCell c2 = new SimpleCell("c2");
+    SimpleCell c1 = new SimpleCell("c1");
+
+    c1.subscribe(c3::setLeft);
+    c2.subscribe(c3::setRight);
+
+    c1.onNext(10);
+    c2.onNext(20);
+    c1.onNext(15);
+  }
+
+  @Test
+  @DisplayName("두 플로를 합치는 예제")
+  void test8() {
+    ArithmeticCell c5 = new ArithmeticCell("C5");
+    ArithmeticCell c3 = new ArithmeticCell("C3");
+
+    SimpleCell c4 = new SimpleCell("C4");
+    SimpleCell c2 = new SimpleCell("C2");
+    SimpleCell c1 = new SimpleCell("C1");
+
+    c1.subscribe(c3::setLeft);
+    c2.subscribe(c3::setRight);
+
+    c3.subscribe(c5::setLeft);
+    c4.subscribe(c5::setRight);
+
+    c1.onNext(10);
+    c2.onNext(20);
+    c1.onNext(15);
+    c4.onNext(1);
+    c4.onNext(3);
+  }
 }
