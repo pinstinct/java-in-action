@@ -1,5 +1,6 @@
 package chapter16;
 
+import static chapter16.Shop.findPriceWithExecutor;
 import static chapter16.Shop.findPrices;
 import static chapter16.Shop.findPricesParallel;
 import static chapter16.Shop.findPricesWithCF;
@@ -28,6 +29,7 @@ class ShopTest {
     System.out.println(findPricesParallel("myPhone27s"));
     long duration = (System.nanoTime() - start) / 1_000_000;
     System.out.println("Done in " + duration + "m sec");
+    System.out.println(Runtime.getRuntime().availableProcessors());
   }
 
   @Test
@@ -36,6 +38,16 @@ class ShopTest {
     long start = System.nanoTime();
     // 원하는 제품의 가격을 검색
     System.out.println(findPricesWithCF("myPhone27s"));
+    long duration = (System.nanoTime() - start) / 1_000_000;
+    System.out.println("Done in " + duration + "m sec");
+  }
+
+  @Test
+  @DisplayName("커스텀 Executor 사용하기")
+  void test4() {
+    long start = System.nanoTime();
+    // 원하는 제품의 가격을 검색
+    System.out.println(findPriceWithExecutor("myPhone27s"));
     long duration = (System.nanoTime() - start) / 1_000_000;
     System.out.println("Done in " + duration + "m sec");
   }
