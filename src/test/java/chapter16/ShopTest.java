@@ -2,6 +2,8 @@ package chapter16;
 
 import static chapter16.Shop.findPriceWithExecutor;
 import static chapter16.Shop.findPrices;
+import static chapter16.Shop.findPricesAsync;
+import static chapter16.Shop.findPricesAsyncSimple;
 import static chapter16.Shop.findPricesParallel;
 import static chapter16.Shop.findPricesWithCF;
 
@@ -54,6 +56,29 @@ class ShopTest {
       System.out.println(findPriceWithExecutor("myPhone27s"));
       long duration = (System.nanoTime() - start) / 1_000_000;
       System.out.println("Done in " + duration + "m sec");
+    }
+  }
+
+  @Nested
+  @DisplayName("비동기 작업")
+  class AsyncTest {
+
+    @Test
+    @DisplayName("가장 간단한 findPricesAsync")
+    void test1() {
+      long start = System.nanoTime();
+      System.out.println(findPricesAsyncSimple("myPhone27s"));
+      long duration = (System.nanoTime() - start) / 1_000_000;
+      System.out.println("Done in " + duration + "m sec");
+    }
+
+    @Test
+    @DisplayName("CompletableFuture를 조합해서 성능 개선")
+    void test2() {
+      long start = System.nanoTime();
+      System.out.println(findPricesAsync("myPhone27s"));
+      long duration = (System.nanoTime() - start) / 1_000_000;
+      System.out.println("Don in " + duration + "m sec");
     }
   }
 }
