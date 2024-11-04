@@ -15,6 +15,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class Shop {
 
@@ -44,6 +45,17 @@ public class Shop {
   public static void delay() {
     try {
       Thread.sleep(1000L);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /* 0.5초에서 2.5초 사이의 임의의 지연 시뮬레이션을 위한 메서드 */
+  public static void randomDelay() {
+    Random random = new Random();
+    int delay = 500 + random.nextInt(2000);
+    try {
+      Thread.sleep(delay);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -105,6 +117,13 @@ public class Shop {
         .toList();
   }
 
+  public static Stream<CompletableFuture<String>> findPricesStream(String product) {
+    return shops.stream()
+        .map(shop -> CompletableFuture.supplyAsync(() -> shop.getPriceString(product), executor))
+        .map(future -> future.thenApply(Quote::parse))
+        .map(future -> future.thenCompose(quote -> CompletableFuture.supplyAsync(() -> applyDiscount(quote), executor)));
+  }
+
   public String getName() {
     return name;
   }
@@ -127,7 +146,7 @@ public class Shop {
   }
 
   public double calculatePrice(String product) {
-    delay();
+    randomDelay();
     return Double.parseDouble(
         String.valueOf(random.nextDouble() * product.charAt(0) + product.charAt(1)));
   }

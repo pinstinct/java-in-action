@@ -1,5 +1,7 @@
 package chapter16;
 
+import static chapter16.Shop.randomDelay;
+
 /* 원격 서비스라고 가정 */
 public class Discount {
 
@@ -12,7 +14,7 @@ public class Discount {
   }
 
   private static double apply(double price, Code code) {
-    delay();  // 응답 지연
+    randomDelay();  // 응답 지연
     return (price * (100 - code.percent) / 100);
   }
 
